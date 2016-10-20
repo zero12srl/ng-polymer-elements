@@ -151,13 +151,17 @@
 
             var el = element[0];
 
-            var observers = {}
+            var observers = {};
+            var unbinds = [];
 
             scope.$on('$destroy', function () {
               Object.keys(observers).forEach(function(key) {
                 var observer = observers[key];
                 Object.unobserve(el[key], observer);
               });
+              unbinds.forEach(function(unbind) {
+                unbind();
+              })
             });
 
             keys.forEach(function(attr) {
@@ -167,7 +171,7 @@
                 return;
               }
 
-              scope.$watch(function() {
+              var unbind = scope.$watch(function() {
                 return el.getPropertyInfo != undefined;
               }, function(newVal, oldVal) {
                 if (newVal) {
@@ -296,6 +300,8 @@
                   }
                 }
               })
+
+              unbinds.push(unbind);
             });
           }
         };
